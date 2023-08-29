@@ -1,0 +1,568 @@
+{% load static %}
+{% load task_tags %}
+<!DOCTYPE html>
+<html lang="en-US" >
+    <head>
+        <meta charset="UTF-8" />
+        <title> {{ title }} </title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Load Stile -->
+        <link rel="stylesheet" href="{% static 'task/css/min.css' %}">
+
+        <!-- Meta SEO -->
+		<meta name="keyword" content="" />
+		<meta name="description" content="" />
+		<meta name="author" content="" />
+		<link rel="canonical" href="" />
+
+    </head>
+
+    <body>
+
+<div class="container">
+ <div class="user-profile-area">
+  <div class="task-manager">task manager</div>
+  <div class="side-wrapper">
+   <div class="user-profile">
+<!--   <label><img src="https://assets.codepen.io/3364143/Screen+Shot+2020-08-01+at+12.24.16.png" alt="" class="user-photo" id="user-photo"> <input type="file" hidden></label>-->
+
+       <label>
+           <div class="user-photo">
+               <img src="{% if tasks.0.user_id.photo %}{{ tasks.0.user_id.photo.url }}{% else %}{% get_default_photo %}{% endif %}" alt="" class="user-photo" id="user-photo">
+               <input type="file" id="user-photo-input" name="user-photo{{ tasks.0.user_id_id }}" accept=".jpg, .png, .jpeg" hidden>
+           </div>
+       </label>
+
+    <div class="user-name">{{ tasks.0.user_id.first_name }} {{ tasks.0.user_id.last_name }} {{ rel }}</div>
+    <div class="user-mail">{{ tasks.0.user_id.email }}</div>
+   </div>
+   <div class="user-notification">
+    <div class="notify" id="settings-button">
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" fill="currentColor" class="feather-user feather-settings">
+      <path d="M13.533 5.6h-.961a.894.894 0 01-.834-.57.906.906 0 01.197-.985l.675-.675a.466.466 0 000-.66l-1.32-1.32a.466.466 0 00-.66 0l-.676.677a.9.9 0 01-.994.191.906.906 0 01-.56-.837V.467A.467.467 0 007.933 0H6.067A.467.467 0 005.6.467v.961c0 .35-.199.68-.57.834a.902.902 0 01-.983-.195L3.37 1.39a.466.466 0 00-.66 0L1.39 2.71a.466.466 0 000 .66l.675.675c.25.25.343.63.193.995a.902.902 0 01-.834.56H.467A.467.467 0 000 6.067v1.866c0 .258.21.467.467.467h.961c.35 0 .683.202.834.57a.904.904 0 01-.197.984l-.675.676a.466.466 0 000 .66l1.32 1.32a.466.466 0 00.66 0l.68-.68a.894.894 0 01.994-.187.897.897 0 01.556.829v.961c0 .258.21.467.467.467h1.866c.258 0 .467-.21.467-.467v-.961c0-.35.202-.683.57-.834a.904.904 0 01.984.197l.676.675a.466.466 0 00.66 0l1.32-1.32a.466.466 0 000-.66l-.68-.68a.894.894 0 01-.187-.994.897.897 0 01.829-.556h.961c.258 0 .467-.21.467-.467V6.067a.467.467 0 00-.467-.467zM7 9.333C5.713 9.333 4.667 8.287 4.667 7S5.713 4.667 7 4.667 9.333 5.713 9.333 7 8.287 9.333 7 9.333z" /></svg>
+    </div>
+    <div class="notify alert" id="profile-button">
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="feather-user feather-profile">
+       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+       <circle cx="12" cy="7" r="4"></circle></svg>
+    </div>
+    <div class="notify alert" id="logout-button">
+        <a href="{% url 'logout' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="feather-user feather-profile">
+                <path d="M21 12L13 12 M18 15L20.913 12.087V12.087C20.961 12.039 20.961 11.961 20.913 11.913V11.913L18 9 M16 5V4.5V4.5C16 3.67157 15.3284 3 14.5 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H14.5C15.3284 21 16 20.3284 16 19.5V19.5V19"/>
+            </svg>
+        </a>
+    </div>
+   </div>
+
+
+    {% count_completed tasks as count_complete %}
+    {% relation count_complete tasks.count as rel %}
+
+    <div id="task-progress">
+       <div class="progress-status">{{ count_complete }}/{{ tasks.count }}</div>
+       <div class="progress" style="--progress-status: {{ rel }}%;">
+        <div class="progress-bar"></div>
+       </div>
+       <div class="task-status">
+        <div class="task-stat">
+         <div class="task-number" id="completed-tasks">{{ count_complete }}</div>
+         <div class="task-condition">Completed</div>
+         <div class="task-tasks">tasks</div>
+        </div>
+        <div class="task-stat">
+         <div class="task-number" id="to-do-tasks">{% minus tasks.count count_complete %}</div>
+         <div class="task-condition">To do</div>
+         <div class="task-tasks">tasks</div>
+        </div>
+        <div class="task-stat">
+         <div class="task-number" id="all-completed">{{ tasks.0.user_id.completed_tasks }}</div>
+         <div class="task-condition">All</div>
+         <div class="task-tasks">completed</div>
+        </div>
+       </div>
+    </div>
+
+      <div class="user-settings hide">
+          <label for="email-settings">Имя</label>
+        <input type="text" name="email" placeholder="..." id="name-settings" value="{{ tasks.0.user_id.first_name }}" />
+          <label for="email-settings">Фамилия</label>
+        <input type="text" name="email" placeholder="..." id="lastname-settings" value="{{ tasks.0.user_id.last_name }}" />
+          <label for="email-settings">Email</label>
+        <input type="text" name="email" placeholder="..." id="email-settings" value="{{ tasks.0.user_id.email }}" />
+        <div class="error-edit hide" id="error-edit-settings"></div>
+          <div class="user-settings-bottom" id="settings-bottom"><button class="add-button" type="submit" onclick="edit_settings({{ tasks.0.user_id_id }})" id="confirm-settings-button">Confirm</button></div>
+      </div>
+
+  </div>
+
+
+
+  {% if tasks.0.user_id.sections %}
+      <div class="side-wrapper">
+
+       <div class="project-title">Projects</div>
+       <div class="project-name">
+<!--        {% for task in tasks %}-->
+<!--            <div class="project-department">{{ task.user_id.sections }}</div> Сюда скрипт на распакоуку JSON -->
+<!--        {% endfor %}-->
+
+        <div class="project-department">Design</div>
+        <div class="project-department">Development</div>
+        <div class="project-department">Management</div>
+       </div>
+
+      </div>
+  {% endif %}
+
+<!--  <div class="side-wrapper">-->
+<!--   <div class="project-title">Team</div>-->
+<!--   <div class="team-member">-->
+<!--    <img src="https://images.unsplash.com/flagged/photo-1574282893982-ff1675ba4900?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80" alt="" class="members">-->
+<!--    <img src="https://assets.codepen.io/3364143/Screen+Shot+2020-08-01+at+12.24.16.png" alt="" class="members">-->
+<!--    <img src="https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60" alt="" class="members">-->
+<!--    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=998&q=80" alt="" class="members">-->
+<!--    <img src="https://images.unsplash.com/photo-1541647376583-8934aaf3448a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80" alt="" class="members">-->
+<!--   </div>-->
+<!--  </div>-->
+
+
+ </div>
+ <div class="main-area">
+  <div class="header">
+   <div class="search-bar">
+    <input type="text" oninput="search_input(this)" placeholder="Search...">
+   </div>
+   <div class="inbox-calendar">
+    <input type="checkbox" class="inbox-calendar-checkbox">
+    <div class="toggle-page">
+     <span>Inbox</span>
+    </div>
+    <div class="layer"></div>
+   </div>
+   <div class="color-menu">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464.7 464.7"><path d="M446.6 18.1a62 62 0 00-87.6 0L342.3 35a23 23 0 10-32.5 32.5l5.4 5.4-180.6 180.6L71.9 316c-5 5-8 11.6-8.2 18.7l-.2 3.3-2.5 56.7a9.4 9.4 0 009.4 9.8h.4l30-1.3 18.4-.8 8.3-.4a37 37 0 0024.5-10.8l240.9-240.9 4.5 4.6a23 23 0 0032.5 0c9-9 9-23.6 0-32.6l16.7-16.7a62 62 0 000-87.6zm-174 209.2l-84.6 16 138-138 34.4 34.3-87.8 87.7zM64.5 423.9C28.9 423.9 0 433 0 444.3c0 11.3 28.9 20.4 64.5 20.4s64.5-9.1 64.5-20.4C129 433 100 424 64.5 424z"/></svg>
+     <input type="color" value="#4d76fd" class="colorpicker" id="colorpicker"></input>
+   </div>
+  </div>
+  <div class="main-container">
+   <div class="inbox-container">
+    <div class="inbox">
+     <div class="msg msg-department anim-y">
+         Main
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 492 492">
+       <path d="M484.13 124.99l-16.11-16.23a26.72 26.72 0 00-19.04-7.86c-7.2 0-13.96 2.79-19.03 7.86L246.1 292.6 62.06 108.55c-5.07-5.06-11.82-7.85-19.03-7.85s-13.97 2.79-19.04 7.85L7.87 124.68a26.94 26.94 0 000 38.06l219.14 219.93c5.06 5.06 11.81 8.63 19.08 8.63h.09c7.2 0 13.96-3.57 19.02-8.63l218.93-219.33A27.18 27.18 0 00492 144.1c0-7.2-2.8-14.06-7.87-19.12z"></path>
+      </svg>
+     </div>
+
+     {% for task in tasks %}
+        {% check_date_complete task.time_complete|date:"Y m d H i" task.id task.is_complete as time_to_deadline %}
+            {% if time_to_deadline != 'del' %}
+                 <div class="msg {% if task.is_complete %} selected-bg {% endif %} anim-y" id="task{{ task.id }}">
+                  <input type="checkbox" name="msg" id="mail{{ task.id }}" class="mail-choice" {% if task.is_complete %} checked {% endif %}>
+                  <label for="mail{{ task.id }}"></label>
+                  <div class="msg-content" onclick='ViewTask({% if task.comment %}{{ task.comment }}, {% else %} " ", {% endif %}"{{ task.title }}", "{{ task.description }}", "{{ task.time_complete|date:"d M, Y" }}", "{{ task.id }}")'>
+                   <div class="msg-title">{{ task.title }}</div>
+                   <div class="msg-date" {% if time_to_deadline and time_to_deadline != 'complete' %} style="color:{% if time_to_deadline == 'Failed' %} rgba(233, 11, 11, 0.8); {% else %} rgba(227, 209, 93, 1); {% endif %}" {% endif %}>{{ task.time_complete|date:"H:i, d M, Y" }}</div>
+                  </div>
+                  <img src="{% if tasks.0.user_id.photo %} {{ tasks.0.user_id.photo.url }} {% else %} {% get_default_photo %} {% endif %}" alt="" class="members mail-members">
+                 </div>
+            {% endif %}
+     {% endfor %}
+
+
+
+<!--     <div class="msg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail2" class="mail-choice">-->
+<!--      <label for="mail2"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title">Disrupt next level aesthetic raw</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://images.unsplash.com/flagged/photo-1574282893982-ff1675ba4900?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80" alt="" class="members mail-members">-->
+<!--     </div>-->
+<!--     <div class="msg selected-bg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail3" class="mail-choice" checked>-->
+<!--      <label for="mail3"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title">Chicharrones craft beer tattooed</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=998&q=80" alt="" class="members mail-members">-->
+<!--     </div>-->
+<!--     <div class="msg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail4" class="mail-choice">-->
+<!--      <label for="mail4"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title">Vaporware readymade shabby</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60" alt="" class="members mail-members">-->
+<!--     </div>-->
+<!--     <div class="msg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail5" class="mail-choice">-->
+<!--      <label for="mail5"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title"> Four dollar toast taxidermy</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2100&q=80" alt="" class="members mail-members">-->
+<!--     </div>-->
+<!--     <div class="msg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail6" class="mail-choice">-->
+<!--      <label for="mail6"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title">Slow-carb disrupt kogi tote bag</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://images.unsplash.com/photo-1541647376583-8934aaf3448a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80" alt="" class="members mail-members">-->
+<!--     </div>-->
+<!--     <div class="msg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail7" class="mail-choice">-->
+<!--      <label for="mail7"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title">Pour-over subway tile twee</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://assets.codepen.io/3364143/Screen+Shot+2020-08-01+at+12.24.16.png" alt="" class="members mail-members">-->
+<!--     </div>-->
+<!--     <div class="msg anim-y">-->
+<!--      <input type="checkbox" name="msg" id="mail8" class="mail-choice">-->
+<!--      <label for="mail8"></label>-->
+<!--      <div class="msg-content">-->
+<!--       <div class="msg-title">Create AdWords campaign</div>-->
+<!--       <div class="msg-date">22 Feb, 2019</div>-->
+<!--      </div>-->
+<!--      <img src="https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60" alt="" class="members mail-members">-->
+<!--     </div>-->
+
+
+
+    </div>
+    <div class="add-task">
+
+
+        <button class="add-button" onclick="add_task_button(event, {% if tasks.0.user_id.photo %} '{{ tasks.0.user_id.photo.url }}' {% else %} '{% get_default_photo %}' {% endif %})">Add task </button>
+
+    </div>
+   </div>
+
+   <div class="mail-detail">
+
+   {% block mail_detail %}
+    <div class="mail-detail-header">
+     <div class="mail-detail-profile">
+      <img src="{% if tasks.0.user_id.photo %} {{ tasks.0.user_id.photo.url }} {% else %} {% get_default_photo %} {% endif %}" alt="" class="members inbox-detail" />
+      <div class="mail-detail-name"><p>{{ tasks.0.user_id.first_name }} {{ tasks.0.user_id.last_name }}</p></div>
+     </div>
+     <div class="mail-icons">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+       <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag">
+       <path d="M20.0651 7.39423L7.09967 20.4114C6.72438 20.7882 6.21446 21 5.68265 21H4.00383C3.44943 21 3 20.5466 3 19.9922V18.2987C3 17.7696 3.20962 17.2621 3.58297 16.8873L16.5517 3.86681C19.5632 1.34721 22.5747 4.87462 20.0651 7.39423Z M15.3097 5.30981L18.7274 8.72755" /></svg>
+     </div>
+    </div>
+
+
+    <div class="mail-contents">
+     <div class="mail-contents-subject">
+      <input type="checkbox" name="msg" id="detail{{ tasks.0.id }}" class="mail-choice" {% if tasks.0.is_complete %} checked {% endif %}>
+      <label for="detail{{ tasks.0.id }}"></label>
+
+      <div class="mail-contents-title" id="mail-title">{{ tasks.0.title }}</div>
+
+     </div>
+     <div class="mail">
+
+      <div class="mail-time" id="mail-time">
+
+       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" /></svg>
+            {{ tasks.0.time_complete|date:"d M, Y" }}
+
+      </div>
+
+
+      <div class="mail-inside" id="mail-desc">{{ tasks.0.description }}</div>
+
+<!--      <div class="mail-assign">-->
+<!--       <div class="assignee">-->
+<!--        <strong>Okla Nowak</strong> assigned to Natalie Smith.-->
+<!--        <span class="assign-date">25 Nov, 2019</span>-->
+<!--       </div>-->
+<!--       <div class="assignee">-->
+<!--        <strong>Okla Nowak</strong> added to Marketing.-->
+<!--        <span class="assign-date">18 Feb, 2019</span>-->
+<!--       </div>-->
+<!--       <div class="assignee">-->
+<!--        <strong>Okla Nowak </strong> created task.-->
+<!--        <span class="assign-date">18 Feb, 2019</span>-->
+<!--       </div>-->
+<!--      </div>-->
+<!--      <div class="mail-checklist">-->
+<!--       <input type="checkbox" name="msg" id="mail30" class="mail-choice" checked>-->
+<!--       <label for="mail30">Natalie completed this task.</label>-->
+<!--       <div class="mail-checklist-date">19 May, 2020</div>-->
+<!--      </div>-->
+
+
+      {% if tasks.0.comment %}
+<!--          <div class="mail-doc">-->
+<!--           </div>-->
+
+
+              {% for comment in tasks.0.comment %}
+                  {% if comment %}
+                    <div class="mail-doc" {% if forloop.counter0 %} style="border-top: none;" {% endif %}>
+                        {% if comment.file %}
+                            <div class="mail-doc-file">
+                                <div class="mail-doc-wrapper">
+                                    <a href="/media/{{ comment.file }}" name="comment-file" download>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text">
+                                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                     <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" /></svg>
+                                    </a>
+                                    <div class="mail-doc-file-name"> {% split_file_name comment.file %} </div>
+                                </div>
+                        {% endif %}
+                        <div class="mail-doc-detail">
+                            <div class="mail-doc-name" id="mail-comment{{ forloop.counter0 }}">{{ comment.text }}</div>
+                            <div class="mail-doc-date">added {{ comment.time }}, {{ comment.day }} {{ comment.month }}, {{ comment.year }}</div>
+                        </div>
+                        {% if comment.file %}
+                            </div>
+                        {% endif %}
+                        <div class="mail-doc-icons">
+                            <svg xmlns="http://www.w3.org/2000/svg" onclick="trash_comment({{ forloop.counter0 }})" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                             <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" /></svg>
+                       </div>
+
+                    </div>
+                  {% endif %}
+              {% endfor %}
+
+
+
+
+
+
+      {% endif %}
+
+
+     </div>
+    </div>
+
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mail-contents hide" id="add-task-form">
+         <div class="mail-contents-subject">
+          <input type="checkbox" name="msg" id="new" class="mail-choice" checked>
+          <label for="new"></label>
+
+          <div class="add-task-form" id="add-task-title">
+              <label for="add-task-title">Title</label>
+              {{ form.title }}
+          </div>
+
+         </div>
+         <div class="mail">
+              <div class="add-task-form" id="add-task-time">
+                  <label for="add-task-time">Time complete</label>
+                  {{ form.time_complete }}
+              </div>
+             <div class="add-task-form" id="add-task-description">
+                 <label for="add-task-description">Description</label>
+                 {{ form.description }}
+             </div>
+         </div>
+        </div>
+
+        <div class="add-task-form-bottom hide" id="add-task-bottom"><button class="add-button" type="submit" id="confirm-button">Confirm</button></div>
+    </form>
+    <div class="mail-textarea" id="files">
+     <input type="text" placeholder="Write a comment...">
+     <div class="textarea-icons">
+      <div class="attach">
+          <input type="file" class="mail-loader_com" id="file-loader-comment" />
+          <label for="file-loader-comment"></label>
+
+<!--               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">-->
+<!--                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" /></svg>-->
+
+      </div>
+      <div class="send" onclick="AddComment()">
+       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send">
+        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+      </div>
+     </div>
+    </div>
+
+    <div class="add-task-form-bottom hide" id="edit-task-bottom"><button onclick="press_edit_button(this)" class="add-button" id="edit_button">Edit</button></div>
+
+
+
+    {% endblock mail_detail %}
+   </div>
+
+
+<!--   <div class="mail-contents">-->
+<!--     <div class="mail-contents-subject">-->
+<!--      <input type="checkbox" name="msg" id="detail1" class="mail-choice" checked>-->
+<!--      <label for="detail1"></label>-->
+<!--      <div class="mail-contents-title">{{ tasks.0.title }}</div>-->
+<!--     </div>-->
+<!--     <div class="mail">-->
+<!--      <div class="mail-time">-->
+<!--       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock">-->
+<!--        <circle cx="12" cy="12" r="10" />-->
+<!--        <path d="M12 6v6l4 2" /></svg>-->
+<!--       {{ tasks.0.time_complete|date:"d M, Y" }}-->
+<!--      </div>-->
+<!--      <div class="mail-inside">{{ tasks.0.description }}</div>-->
+
+
+
+
+   <div class="calendar-container">
+    <div class="calender-tab anim-y">
+     <div class="week-month">
+      <button class=" button active">Week</button>
+      <button class=" button button-month">Month</button>
+     </div>
+     <div class="month-change">
+      <div class="current-month">{{ current_month }}</div>
+      <div class="current-year">{{ current_year }}</div>
+     </div>
+     <div class="week-month">
+      <button class=" button button-weekends">Weekends</button>
+      <button class=" button button-task active" onclick="add_task_button(event, {% if tasks.0.user_id.photo %} '{{ tasks.0.user_id.photo.url }}' {% else %} '{% get_default_photo %}' {% endif %})">Add task</button>
+     </div>
+    </div>
+    <div class="calendar-wrapper anim-y">
+     <div class="calendar">
+      <div class="days">Monday</div>
+      <div class="days">Tuesday</div>
+      <div class="days">Wednesday</div>
+      <div class="days">Thursday</div>
+      <div class="days">Friday</div>
+      <div class="days">Saturday</div>
+      <div class="days">Sunday</div>
+
+      {% for i in count_days.0 %}
+          <div class="day not-work">{{ i }}</div>
+      {% endfor %}
+
+      {% for i in count_days.1 %}
+          {% with False as checker %}
+          {% for task in tasks %}
+              {% if task.time_complete|date:"j" == i|slugify and current_month == task.time_complete|date:"F" and not checker %}
+                  <div class="day project-market">{{ i }}
+                  {% update_variable True as checker %}
+              {% endif %}
+
+              {% if checker and task.time_complete|date:"j" == i|slugify %}
+                  <div class="project-detail">{{ task.title }}</div>
+              {% endif %}
+
+              {% if forloop.last and checker %}
+                      <div class="popup-check">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                          </svg>
+                      </div>
+                  </div>
+              {% elif forloop.last and not checker %}
+                  <div class="day">{{ i }}</div>
+              {% endif %}
+          {% endfor %}
+
+
+
+      {% endwith %}
+
+
+
+      {% endfor %}
+
+
+<!--      <div class="day">2</div>-->
+<!--      <div class="day project-design">3-->
+<!--       <div class="project-detail design">Create 3 illustrations for blog post about design trends</div>-->
+<!--      </div>-->
+<!--      <div class="day">4</div>-->
+<!--      <div class="day">5</div>-->
+<!--      <div class="day">6</div>-->
+<!--      <div class="day project-develop">7-->
+<!--       <div class="project-detail develop">Take part in course about future design trends and new technologies</div>-->
+<!--      </div>-->
+<!--      <div class="day">8</div>-->
+<!--      <div class="day">9</div>-->
+<!--      <div class="day">10</div>-->
+<!--      <div class="day">11</div>-->
+<!--      <div class="day">12</div>-->
+<!--      <div class="day">13</div>-->
+<!--      <div class="day">14</div>-->
+<!--      <div class="day project-market">15-->
+<!--       <div class="hover-title">Marketing</div>-->
+<!--       <div class="project-detail">Write an article about design trends</div>-->
+<!--       <div class="popup-check">-->
+<!--         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>-->
+<!--        </svg>-->
+<!--       </div>-->
+<!--      </div>-->
+<!--      <div class="day">16</div>-->
+<!--      <div class="day project-market">17-->
+<!--       <div class="hover-title">Marketing</div>-->
+<!--       <div class="project-detail">Create AdWords campaign</div>-->
+<!--       <div class="project-detail">Send newsletter to clients</div>-->
+<!--       <div class="popup-check">-->
+<!--         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>-->
+<!--        </svg>-->
+<!--       </div>-->
+<!--      </div>-->
+<!--      <div class="day">18</div>-->
+<!--      <div class="day">19</div>-->
+<!--      <div class="day">20</div>-->
+<!--      <div class="day">21</div>-->
+<!--      <div class="day">22</div>-->
+<!--       <div class="day project-finance">23-->
+<!--        <div class="hover-title">Management</div>-->
+<!--       <div class="project-detail finance">Redesign project ui interface for clients and get feedback</div>-->
+<!--       <div class="popup-check">-->
+<!--         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-square"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>-->
+<!--        </svg>-->
+<!--       </div>-->
+<!--      </div>-->
+<!--      <div class="day">24</div>-->
+<!--      <div class="day">25</div>-->
+<!--      <div class="day">26</div>-->
+<!--      <div class="day">27</div>-->
+<!--      <div class="day">28</div>-->
+<!--      <div class="day">29</div>-->
+<!--      <div class="day">30</div>-->
+
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+        <!-- End Main Content-->
+		
+		<!-- Start Footer -->
+		<footer>
+			
+		</footer>
+		<!-- End Footer -->
+
+        <!-- Start Script -->
+        <script src="{% static 'task/js/jquery-3.6.4.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'task/js/min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'task/js/add_task.js' %}"></script>
+<!--        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
+    </body>
+</html>
